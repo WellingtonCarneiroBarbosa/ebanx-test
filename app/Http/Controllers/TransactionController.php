@@ -37,7 +37,7 @@ class TransactionController extends Controller
         }
     }
 
-    private function handleCreateAccountRequest(): JsonResponse
+    protected function handleCreateAccountRequest(): JsonResponse
     {
         $data = $this->data;
 
@@ -54,17 +54,17 @@ class TransactionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    private function handleDepositRequest(Account $destinationAccount): JsonResponse
+    protected function handleDepositRequest(Account $destinationAccount): JsonResponse
     {
         return response()->json();
     }
 
-    private function handleWithdrawRequest(): JsonResponse
+    protected function handleWithdrawRequest(): JsonResponse
     {
         return response()->json();
     }
 
-    private function handleTransferRequest(): JsonResponse
+    protected function handleTransferRequest(): JsonResponse
     {
         return response()->json();
     }
