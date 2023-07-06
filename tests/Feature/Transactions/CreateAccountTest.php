@@ -3,11 +3,14 @@
 namespace Tests\Feature\Transactions;
 
 use App\Http\Controllers\TransactionController;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
 
 class CreateAccountTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
     public function it_should_create_an_account_if_there_is_no_account_with_destination_id_passed(): void
     {
