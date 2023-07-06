@@ -17,3 +17,9 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/tools/**/*/vendor
+/tools/**/*/node_modules
+/tools/**/*/composer.lock
+.phpstorm.meta.php
+.php-cs-fixer.cache
+composer.lock
