@@ -12,10 +12,10 @@
         "laravel/tinker": "^2.8"
     },
     "require-dev": {
-        "fakerphp/faker": "^1.9.1",
         "barryvdh/laravel-ide-helper": "^2.12",
+        "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.0",
-        "laravel/sail": "^1.18",
+        "laravel/sail": "^1.23",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
         "phpunit/phpunit": "^10.1",
@@ -44,12 +44,6 @@
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force",
             "composer update-tools"
-        ],
-        "post-root-package-install": [
-            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
-        ],
-        "post-create-project-cmd": [
-            "@php artisan key:generate --ansi"
         ],
         "install-tools": [
             "composer install --working-dir=tools/php-cs-fixer"
