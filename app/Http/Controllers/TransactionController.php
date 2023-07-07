@@ -41,7 +41,7 @@ class TransactionController extends Controller
 
     protected function depositTypeRequest(): JsonResponse|Response
     {
-        return $this->handleDepositRequest(
+        return $this->makeDeposit(
             $this->findOrCreateAccount($this->data['destination'])
         );
     }
@@ -54,7 +54,7 @@ class TransactionController extends Controller
             return apiResponse(0, Response::HTTP_NOT_FOUND);
         }
 
-        return $this->handleWithdrawRequest($account);
+        return $this->makeWithdraw($account);
     }
 
     protected function transferTypeRequest(): JsonResponse|Response
@@ -67,13 +67,13 @@ class TransactionController extends Controller
             return apiResponse(0, Response::HTTP_NOT_FOUND);
         }
 
-        return $this->handleTransferRequest(
+        return $this->makeTransfer(
             $originAccount,
             destinationAccount: $this->findOrCreateAccount($data['destination']),
         );
     }
 
-    protected function handleDepositRequest(Account $destinationAccount): JsonResponse
+    protected function makeDeposit(Account $destinationAccount): JsonResponse
     {
         $transaction = (new Deposit())
             ->setAccount($destinationAccount)
@@ -83,7 +83,7 @@ class TransactionController extends Controller
         return apiResponse(new TransactionResource($transaction), Response::HTTP_CREATED);
     }
 
-    protected function handleWithdrawRequest(Account $originAccount): JsonResponse
+    protected function makeWithdraw(Account $originAccount): JsonResponse
     {
         $transaction = (new Withdraw())
             ->setAccount($originAccount)
@@ -93,7 +93,7 @@ class TransactionController extends Controller
         return apiResponse(new TransactionResource($transaction), Response::HTTP_CREATED);
     }
 
-    protected function handleTransferRequest(
+    protected function makeTransfer(
         Account $originAccount,
         Account $destinationAccount
     ): JsonResponse {

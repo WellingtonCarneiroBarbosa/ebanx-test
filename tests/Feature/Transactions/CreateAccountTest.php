@@ -82,7 +82,7 @@ class CreateAccountTest extends TestCase
 
         Event::assertDispatched(NewDeposit::class, function (NewDeposit $event) use ($data) {
             return $event->transaction instanceof Transaction
-                && $event->transaction->amount === $data['amount']
+                && $event->transaction->amount === (float)$data['amount']
                 && $event->transaction->type === Transaction::TYPES['deposit'];
         });
     }

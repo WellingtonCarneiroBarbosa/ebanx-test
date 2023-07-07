@@ -73,7 +73,7 @@ class WithdrawTest extends TestCase
 
         Event::assertDispatched(NewWithdraw::class, function (NewWithdraw $event) {
             return $event->transaction instanceof Transaction
-                && $event->transaction->amount === 100
+                && $event->transaction->amount === 100.0
                 && $event->transaction->type === Transaction::TYPES['withdraw'];
         });
     }

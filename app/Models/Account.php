@@ -5,13 +5,14 @@ namespace App\Models;
 use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * App\Models\Account
  *
  * @property string $id
  * @property string $uuid
- * @property string $balance
+ * @property float $balance
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Transaction> $transactions
@@ -33,12 +34,14 @@ class Account extends Model
     use HasUuid;
 
     protected $casts = [
-        'id' => 'string',
+        'id'      => 'string',
+        'balance' => 'float',
     ];
 
-    public function transactions()
+    public function transactions(): HasMany
     {
-        return $this->hasMany(Transaction::class, 'destination_internal_account_id');
+        return $this->hasMany(Transaction::class, 'destination_internal_account_id')
+            ->union($this->hasMany(Transaction::class, 'origin_internal_account_id'));
     }
 
     public function increaseBalance(int $amount): self

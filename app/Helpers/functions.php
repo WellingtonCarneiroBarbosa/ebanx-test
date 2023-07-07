@@ -14,14 +14,8 @@ if (! function_exists('apiResponse')) {
 }
 
 if (! function_exists('moneyNormalizer')) {
-    function moneyNormalizer(float $money): float|int
+    function moneyNormalizer(float $money): float
     {
-        $money = round($money, 2);
-
-        if (substr($money, -2) === '00') {
-            $money = substr($money, 0, -3);
-        }
-
-        return $money;
+        return round($money, 2);
     }
 }

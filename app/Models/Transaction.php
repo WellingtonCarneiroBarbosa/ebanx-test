@@ -13,9 +13,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $id
  * @property string $uuid
  * @property LowerCaseCast $type
- * @property int|null $origin_internal_account_id
- * @property int|null $destination_internal_account_id
- * @property string $amount
+ * @property string|null $origin_internal_account_id
+ * @property string|null $destination_internal_account_id
+ * @property float $amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Account|null $destinationInternalAccount
@@ -44,8 +44,11 @@ class Transaction extends Model
     ];
 
     protected $casts = [
-        'id'     => 'string',
-        'type'   => LowerCaseCast::class,
+        'id'                              => 'string',
+        'origin_internal_account_id'      => 'string',
+        'destination_internal_account_id' => 'string',
+        'amount'                          => 'float',
+        'type'                            => LowerCaseCast::class,
     ];
 
     public function originInternalAccount(): BelongsTo
