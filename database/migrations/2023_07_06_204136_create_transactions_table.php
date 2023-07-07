@@ -17,7 +17,12 @@ return new class () extends Migration {
             $table->uuid();
             $table->enum('type', Transaction::TYPES)->index();
 
+            $table->foreignIdFor(Account::class, 'origin_internal_account_id')
+                ->nullable()
+                ->constrained('accounts');
+
             $table->foreignIdFor(Account::class, 'destination_internal_account_id')
+                ->nullable()
                 ->constrained('accounts');
 
             $table->decimal('amount', 12, 9, true)->default(0);

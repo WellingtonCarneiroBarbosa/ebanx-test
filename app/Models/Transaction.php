@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\Concerns\HasUuid;
 use App\Models\Concerns\LowerCaseCast;
-use App\Models\Concerns\MonetaryCast;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -13,8 +12,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $id
  * @property string $uuid
  * @property LowerCaseCast $type
- * @property int $destination_internal_account_id
- * @property MonetaryCast $amount
+ * @property int|null $origin_internal_account_id
+ * @property int|null $destination_internal_account_id
+ * @property string $amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction newModelQuery()
@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereDestinationInternalAccountId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereOriginInternalAccountId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereType($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction whereUuid($value)
@@ -42,6 +43,5 @@ class Transaction extends Model
     protected $casts = [
         'id'     => 'string',
         'type'   => LowerCaseCast::class,
-        'amount' => MonetaryCast::class,
     ];
 }
