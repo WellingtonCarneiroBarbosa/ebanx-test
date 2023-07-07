@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Concerns\HasUuid;
 use App\Models\Concerns\LowerCaseCast;
 use App\Models\Concerns\MonetaryCast;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -32,7 +31,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Transaction extends Model
 {
-    use HasFactory;
     use HasUuid;
 
     public const TYPES = [
