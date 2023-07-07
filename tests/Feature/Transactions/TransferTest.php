@@ -170,4 +170,31 @@ class TransferTest extends TestCase
             'amount'                          => 100,
         ]);
     }
+
+    /** @test */
+    public function assert_the_nonexisting_destination_account_is_created_only_if_the_origin_account_exists(): void
+    {
+        $data = [
+            'type'        => Transaction::TYPES['transfer'],
+            'origin'      => 9999,
+            'destination' => 9998,
+            'amount'      => 100,
+        ];
+
+        $response = $this->post(route('transaction'), $data);
+
+        $response->assertStatus(404);
+
+        $response->assertSee(0);
+
+        $this->assertDatabaseMissing('accounts', [
+            'id'      => 9999,
+            'balance' => 100,
+        ]);
+
+        $this->assertDatabaseMissing('accounts', [
+            'id'      => 9998,
+            'balance' => 100,
+        ]);
+    }
 }
