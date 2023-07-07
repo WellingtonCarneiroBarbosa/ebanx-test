@@ -40,4 +40,18 @@ class Account extends Model
     {
         return $this->hasMany(Transaction::class, 'destination_internal_account_id');
     }
+
+    public function increaseBalance(int $amount): self
+    {
+        $this->balance += $amount;
+
+        return $this;
+    }
+
+    public function decreaseBalance(int $amount): self
+    {
+        $this->balance -= $amount;
+
+        return $this;
+    }
 }

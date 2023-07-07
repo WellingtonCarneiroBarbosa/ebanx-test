@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Account\Create as CreateAccount;
 use App\Actions\Account\Deposit;
+use App\Actions\Account\Transfer;
 use App\Actions\Account\Withdraw;
 use App\Http\Requests\TransactionRequest;
 use App\Models\Account;
@@ -41,7 +42,25 @@ class TransactionController extends Controller
                 return $this->handleWithdrawRequest($account);
 
             case Transaction::TYPES['transfer']:
-                return $this->handleTransferRequest();
+                try {
+                    $destinationAccount = Account::findOrFail($data['destination']);
+                } catch(ModelNotFoundException) {
+                    $destinationAccount = $this->createAccount(
+                        $data['destination'],
+                        0
+                    );
+                }
+
+                try {
+                    $originAccount = Account::findOrFail($data['origin']);
+                } catch (ModelNotFoundException) {
+                    return response(0, Response::HTTP_NOT_FOUND);
+                }
+
+                return $this->handleTransferRequest(
+                    $originAccount,
+                    $destinationAccount,
+                );
         }
     }
 
@@ -49,10 +68,10 @@ class TransactionController extends Controller
     {
         $data = $this->data;
 
-        $account = (new CreateAccount())
-            ->setId($data['destination'])
-            ->setBalance($data['amount'])
-            ->execute();
+        $account = $this->createAccount(
+            $data['destination'],
+            $data['amount']
+        );
 
         return response()->json([
             'destination' => [
@@ -92,8 +111,36 @@ class TransactionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    protected function handleTransferRequest(): JsonResponse
-    {
-        return response()->json();
+    protected function handleTransferRequest(
+        Account $originAccount,
+        Account $destinationAccount
+    ): JsonResponse {
+        (new Transfer())
+            ->setOriginAccount($originAccount)
+            ->setDestinationAccount($destinationAccount)
+            ->setAmount($this->data['amount'])
+            ->execute();
+
+        return response()->json([
+            'origin' => [
+                'id'      => $originAccount->id,
+                'balance' => $originAccount->balance,
+            ],
+
+            'destination' => [
+                'id'      => $destinationAccount->id,
+                'balance' => $destinationAccount->balance,
+            ],
+        ], Response::HTTP_CREATED);
+    }
+
+    private function createAccount(
+        int $id,
+        int $initialAmount = 0,
+    ): Account {
+        return (new CreateAccount())
+            ->setId($id)
+            ->setBalance($initialAmount)
+            ->execute();
     }
 }

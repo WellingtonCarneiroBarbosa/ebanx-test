@@ -32,8 +32,9 @@ class Deposit
 
     private function increaseAccountBalance(): void
     {
-        $this->account->balance += $this->amount;
-        $this->account->save();
+        $this->account
+            ->increaseBalance($this->amount)
+            ->save();
     }
 
     private function saveTransaction(): Transaction

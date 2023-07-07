@@ -34,7 +34,7 @@ class GetBalanceTest extends TestCase
     /** @test */
     public function it_should_return_not_found_and_0_if_the_account_does_not_exists(): void
     {
-        $this->get(route('balance.index', ['account_id' => 'non-existent-account']))
+        $this->get(route('balance.index', ['account_id' => 999999]))
             ->assertStatus(404)
             ->assertSee(0);
     }

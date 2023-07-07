@@ -3,6 +3,7 @@
 namespace App\Actions\Account;
 
 use App\Models\Account;
+use DB;
 
 class Create
 {
@@ -26,13 +27,23 @@ class Create
 
     public function execute(): Account
     {
-        $account = new Account();
+        try {
+            DB::beginTransaction();
 
-        $account->id      = $this->id;
-        $account->balance = $this->balance;
+            $account = new Account();
 
-        $account->save();
+            $account->id      = $this->id;
+            $account->balance = $this->balance;
 
-        return $account;
+            $account->save();
+
+            DB::commit();
+
+            return $account;
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
     }
 }

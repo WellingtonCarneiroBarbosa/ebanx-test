@@ -43,8 +43,9 @@ class Withdraw
 
     protected function subtractAmountFromBalance(): void
     {
-        $this->account->balance -= $this->amount;
-        $this->account->save();
+        $this->account
+            ->decreaseBalance($this->amount)
+            ->save();
     }
 
     protected function saveTransaction(): Transaction
