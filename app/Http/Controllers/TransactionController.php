@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\Account\Create as CreateAccount;
+use App\Actions\Account\Create;
 use App\Actions\Account\Deposit;
 use App\Actions\Account\Transfer;
 use App\Actions\Account\Withdraw;
@@ -41,13 +41,9 @@ class TransactionController extends Controller
 
     protected function depositTypeRequest(): JsonResponse|Response
     {
-        try {
-            $account = Account::findOrFail($this->data['destination']);
-
-            return $this->handleDepositRequest($account);
-        } catch (ModelNotFoundException) {
-            return $this->handleCreateAccountRequest();
-        }
+        return $this->handleDepositRequest(
+            $this->findOrCreateAccount($this->data['destination'])
+        );
     }
 
     protected function withdrawTypeRequest(): JsonResponse|Response
@@ -65,14 +61,7 @@ class TransactionController extends Controller
     {
         $data = $this->data;
 
-        try {
-            $destinationAccount = Account::findOrFail($data['destination']);
-        } catch(ModelNotFoundException) {
-            $destinationAccount = $this->createAccount(
-                $data['destination'],
-                0
-            );
-        }
+        $destinationAccount = $this->findOrCreateAccount($data['destination']);
 
         try {
             $originAccount = Account::findOrFail($data['origin']);
@@ -84,23 +73,6 @@ class TransactionController extends Controller
             $originAccount,
             $destinationAccount,
         );
-    }
-
-    protected function handleCreateAccountRequest(): JsonResponse
-    {
-        $data = $this->data;
-
-        $account = $this->createAccount(
-            $data['destination'],
-            $data['amount']
-        );
-
-        return apiResponse([
-            'destination' => [
-                'id'      => $account->id,
-                'balance' => $account->balance,
-            ],
-        ], Response::HTTP_CREATED);
     }
 
     protected function handleDepositRequest(Account $destinationAccount): JsonResponse
@@ -136,13 +108,17 @@ class TransactionController extends Controller
         return apiResponse(new TransactionResource($transaction), Response::HTTP_CREATED);
     }
 
-    private function createAccount(
+    private function findOrCreateAccount(
         int $id,
-        int $initialAmount = 0,
     ): Account {
-        return (new CreateAccount())
-            ->setId($id)
-            ->setBalance($initialAmount)
-            ->execute();
+        try {
+            $account = Account::findOrFail($id);
+        } catch(ModelNotFoundException) {
+            $account = (new Create())
+                ->setId($id)
+                ->execute();
+        }
+
+        return $account;
     }
 }

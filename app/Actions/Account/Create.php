@@ -9,18 +9,9 @@ class Create
 {
     protected int $id;
 
-    protected int $balance = 0;
-
     public function setId(int $id): self
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    public function setBalance(int $amount): self
-    {
-        $this->balance = $amount;
 
         return $this;
     }
@@ -33,7 +24,7 @@ class Create
             $account = new Account();
 
             $account->id      = $this->id;
-            $account->balance = $this->balance;
+            $account->balance = 0;
 
             $account->save();
 

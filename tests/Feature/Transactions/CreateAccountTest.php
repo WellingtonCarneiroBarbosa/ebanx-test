@@ -2,9 +2,10 @@
 
 namespace Tests\Feature\Transactions;
 
-use App\Http\Controllers\TransactionController;
+use App\Events\Transaction\NewDeposit;
+use App\Models\Transaction;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Mockery;
+use Illuminate\Support\Facades\Event;
 use Tests\TestCase;
 
 class CreateAccountTest extends TestCase
@@ -60,7 +61,7 @@ class CreateAccountTest extends TestCase
     }
 
     /** @test */
-    public function assert_handleCreateAccountRequest_function_is_not_called_when_already_exists_an_account_with_the_passed_id(): void
+    public function assert_a_deposit_transaction_is_made_when_an_account_is_created(): void
     {
         $data = [
             'type'        => 'deposit',
@@ -68,18 +69,22 @@ class CreateAccountTest extends TestCase
             'amount'      => 10,
         ];
 
-        $mock = Mockery::mock(TransactionController::class)->shouldAllowMockingProtectedMethods();
-
-        $mock->shouldReceive('handleCreateAccountRequest')->never();
-
-        $this->post(route('transaction'), $data);
-
-        $this->app->instance(TransactionController::class, $mock);
+        Event::fake(NewDeposit::class);
 
         $response = $this->post(route('transaction'), $data);
 
         $response->assertStatus(201);
 
-        $mock->shouldNotHaveReceived('handleCreateAccountRequest');
+        $this->assertDatabaseHas('transactions', [
+            'destination_internal_account_id' => '100',
+            'type'                            => Transaction::TYPES['deposit'],
+            'amount'                          => 10,
+        ]);
+
+        Event::assertDispatched(NewDeposit::class, function (NewDeposit $event) use ($data) {
+            return $event->transaction instanceof Transaction
+                && $event->transaction->amount === $data['amount']
+                && $event->transaction->type === Transaction::TYPES['deposit'];
+        });
     }
 }
