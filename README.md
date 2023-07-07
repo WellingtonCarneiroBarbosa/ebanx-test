@@ -1,10 +1,6 @@
 # Ebanx Test API
 > An API to the ebanx software engineer test
 
-[![NPM Version][npm-image]][npm-url]
-[![Build Status][travis-image]][travis-url]
-[![Downloads Stats][npm-downloads]][npm-url]
-
 ## Installation
 
 You should have Docker installed and running on your system.
