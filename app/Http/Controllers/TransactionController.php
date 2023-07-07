@@ -4,18 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Actions\Account\Create as CreateAccount;
 use App\Actions\Account\Deposit;
+use App\Actions\Account\Withdraw;
 use App\Http\Requests\TransactionRequest;
 use App\Models\Account;
 use App\Models\Transaction;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Http\Response;
 
 class TransactionController extends Controller
 {
     protected array $data;
 
-    public function __invoke(TransactionRequest $request): JsonResponse
+    public function __invoke(TransactionRequest $request): JsonResponse|Response
     {
         $data = $request->validated();
 
@@ -31,7 +32,13 @@ class TransactionController extends Controller
                     return $this->handleCreateAccountRequest();
                 }
             case Transaction::TYPES['withdraw']:
-                return $this->handleWithdrawRequest();
+                try {
+                    $account = Account::findOrFail($data['origin']);
+                } catch (ModelNotFoundException) {
+                    return response(0, Response::HTTP_NOT_FOUND);
+                }
+
+                return $this->handleWithdrawRequest($account);
 
             case Transaction::TYPES['transfer']:
                 return $this->handleTransferRequest();
@@ -70,9 +77,19 @@ class TransactionController extends Controller
         ], Response::HTTP_CREATED);
     }
 
-    protected function handleWithdrawRequest(): JsonResponse
+    protected function handleWithdrawRequest(Account $originAccount): JsonResponse
     {
-        return response()->json();
+        (new Withdraw())
+            ->setAccount($originAccount)
+            ->setAmount($this->data['amount'])
+            ->execute();
+
+        return response()->json([
+            'origin' => [
+                'id'      => $originAccount->id,
+                'balance' => $originAccount->balance,
+            ],
+        ], Response::HTTP_CREATED);
     }
 
     protected function handleTransferRequest(): JsonResponse

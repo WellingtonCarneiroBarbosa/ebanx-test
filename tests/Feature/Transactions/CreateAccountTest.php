@@ -33,7 +33,7 @@ class CreateAccountTest extends TestCase
 
         $this->assertDatabaseHas('accounts', [
             'id'      => 100,
-            'balance' => (10 / 100),
+            'balance' => 10,
         ]);
     }
 
