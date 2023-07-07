@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Account\Create as CreateAccount;
+use App\Actions\Account\Deposit;
 use App\Http\Requests\TransactionRequest;
 use App\Models\Account;
 use App\Models\Transaction;
@@ -56,7 +57,17 @@ class TransactionController extends Controller
 
     protected function handleDepositRequest(Account $destinationAccount): JsonResponse
     {
-        return response()->json();
+        (new Deposit())
+            ->setAccount($destinationAccount)
+            ->setAmount($this->data['amount'])
+            ->execute();
+
+        return response()->json([
+            'destination' => [
+                'id'      => $destinationAccount->id,
+                'balance' => $destinationAccount->balance,
+            ],
+        ], Response::HTTP_CREATED);
     }
 
     protected function handleWithdrawRequest(): JsonResponse

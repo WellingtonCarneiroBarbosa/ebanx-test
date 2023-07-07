@@ -49,8 +49,12 @@ class CreateAccountTest extends TestCase
         $this->post(route('transaction'), $data);
 
         $response = $this->post(route('transaction'), $data);
+        $response = $this->post(route('transaction'), $data);
+        $response = $this->post(route('transaction'), $data);
+        $response = $this->post(route('transaction'), $data);
 
-        $response->assertStatus(200);
+        // 201 because it is a deposit
+        $response->assertStatus(201);
 
         $this->assertDatabaseCount('accounts', 1);
     }
@@ -74,7 +78,7 @@ class CreateAccountTest extends TestCase
 
         $response = $this->post(route('transaction'), $data);
 
-        $response->assertStatus(200);
+        $response->assertStatus(201);
 
         $mock->shouldNotHaveReceived('handleCreateAccountRequest');
     }
