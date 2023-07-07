@@ -10,6 +10,6 @@ class ResetController extends Controller
     {
         Artisan::call('migrate:refresh');
 
-        return response('OK');
+        return apiResponse('OK');
     }
 }

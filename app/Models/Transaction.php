@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasUuid;
 use App\Models\Concerns\LowerCaseCast;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * App\Models\Transaction
@@ -17,6 +18,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Account|null $destinationInternalAccount
+ * @property-read \App\Models\Account|null $originInternalAccount
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Transaction query()
@@ -44,4 +47,14 @@ class Transaction extends Model
         'id'     => 'string',
         'type'   => LowerCaseCast::class,
     ];
+
+    public function originInternalAccount(): BelongsTo
+    {
+        return $this->belongsTo(Account::class, 'origin_internal_account_id');
+    }
+
+    public function destinationInternalAccount(): BelongsTo
+    {
+        return $this->belongsTo(Account::class, 'destination_internal_account_id');
+    }
 }

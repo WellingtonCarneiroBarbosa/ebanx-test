@@ -33,7 +33,7 @@ class Account extends Model
     use HasUuid;
 
     protected $casts = [
-        'id'      => 'string',
+        'id' => 'string',
     ];
 
     public function transactions()

@@ -7,6 +7,7 @@ use App\Actions\Account\Deposit;
 use App\Actions\Account\Transfer;
 use App\Actions\Account\Withdraw;
 use App\Http\Requests\TransactionRequest;
+use App\Http\Resources\TransactionResource;
 use App\Models\Account;
 use App\Models\Transaction;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -19,49 +20,70 @@ class TransactionController extends Controller
 
     public function __invoke(TransactionRequest $request): JsonResponse|Response
     {
-        $data = $request->validated();
+        $this->data = $request->validated();
 
-        $this->data = $data;
-
-        switch($data['type']) {
+        switch($this->data['type']) {
             case Transaction::TYPES['deposit']:
-                try {
-                    $account = Account::findOrFail($data['destination']);
+                return $this->depositTypeRequest();
 
-                    return $this->handleDepositRequest($account);
-                } catch (ModelNotFoundException) {
-                    return $this->handleCreateAccountRequest();
-                }
             case Transaction::TYPES['withdraw']:
-                try {
-                    $account = Account::findOrFail($data['origin']);
-                } catch (ModelNotFoundException) {
-                    return response(0, Response::HTTP_NOT_FOUND);
-                }
-
-                return $this->handleWithdrawRequest($account);
+                return $this->withdrawTypeRequest();
 
             case Transaction::TYPES['transfer']:
-                try {
-                    $destinationAccount = Account::findOrFail($data['destination']);
-                } catch(ModelNotFoundException) {
-                    $destinationAccount = $this->createAccount(
-                        $data['destination'],
-                        0
-                    );
-                }
+                return $this->transferTypeRequest();
 
-                try {
-                    $originAccount = Account::findOrFail($data['origin']);
-                } catch (ModelNotFoundException) {
-                    return response(0, Response::HTTP_NOT_FOUND);
-                }
-
-                return $this->handleTransferRequest(
-                    $originAccount,
-                    $destinationAccount,
-                );
+            default:
+                return apiResponse([
+                    'message' => 'Invalid transaction type.',
+                ], Response::HTTP_BAD_REQUEST);
         }
+    }
+
+    protected function depositTypeRequest(): JsonResponse|Response
+    {
+        try {
+            $account = Account::findOrFail($this->data['destination']);
+
+            return $this->handleDepositRequest($account);
+        } catch (ModelNotFoundException) {
+            return $this->handleCreateAccountRequest();
+        }
+    }
+
+    protected function withdrawTypeRequest(): JsonResponse|Response
+    {
+        try {
+            $account = Account::findOrFail($this->data['origin']);
+        } catch (ModelNotFoundException) {
+            return apiResponse(0, Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->handleWithdrawRequest($account);
+    }
+
+    protected function transferTypeRequest(): JsonResponse|Response
+    {
+        $data = $this->data;
+
+        try {
+            $destinationAccount = Account::findOrFail($data['destination']);
+        } catch(ModelNotFoundException) {
+            $destinationAccount = $this->createAccount(
+                $data['destination'],
+                0
+            );
+        }
+
+        try {
+            $originAccount = Account::findOrFail($data['origin']);
+        } catch (ModelNotFoundException) {
+            return apiResponse(0, Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->handleTransferRequest(
+            $originAccount,
+            $destinationAccount,
+        );
     }
 
     protected function handleCreateAccountRequest(): JsonResponse
@@ -73,7 +95,7 @@ class TransactionController extends Controller
             $data['amount']
         );
 
-        return response()->json([
+        return apiResponse([
             'destination' => [
                 'id'      => $account->id,
                 'balance' => $account->balance,
@@ -83,55 +105,35 @@ class TransactionController extends Controller
 
     protected function handleDepositRequest(Account $destinationAccount): JsonResponse
     {
-        (new Deposit())
+        $transaction = (new Deposit())
             ->setAccount($destinationAccount)
             ->setAmount($this->data['amount'])
             ->execute();
 
-        return response()->json([
-            'destination' => [
-                'id'      => $destinationAccount->id,
-                'balance' => $destinationAccount->balance,
-            ],
-        ], Response::HTTP_CREATED);
+        return apiResponse(new TransactionResource($transaction), Response::HTTP_CREATED);
     }
 
     protected function handleWithdrawRequest(Account $originAccount): JsonResponse
     {
-        (new Withdraw())
+        $transaction = (new Withdraw())
             ->setAccount($originAccount)
             ->setAmount($this->data['amount'])
             ->execute();
 
-        return response()->json([
-            'origin' => [
-                'id'      => $originAccount->id,
-                'balance' => $originAccount->balance,
-            ],
-        ], Response::HTTP_CREATED);
+        return apiResponse(new TransactionResource($transaction), Response::HTTP_CREATED);
     }
 
     protected function handleTransferRequest(
         Account $originAccount,
         Account $destinationAccount
     ): JsonResponse {
-        (new Transfer())
+        $transaction = (new Transfer())
             ->setOriginAccount($originAccount)
             ->setDestinationAccount($destinationAccount)
             ->setAmount($this->data['amount'])
             ->execute();
 
-        return response()->json([
-            'origin' => [
-                'id'      => $originAccount->id,
-                'balance' => $originAccount->balance,
-            ],
-
-            'destination' => [
-                'id'      => $destinationAccount->id,
-                'balance' => $destinationAccount->balance,
-            ],
-        ], Response::HTTP_CREATED);
+        return apiResponse(new TransactionResource($transaction), Response::HTTP_CREATED);
     }
 
     private function createAccount(

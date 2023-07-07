@@ -19,9 +19,9 @@ class IndexController extends Controller
         try {
             $account = Account::findOrFail($data['account_id']);
         } catch (ModelNotFoundException) {
-            return response(0, Response::HTTP_NOT_FOUND);
+            return apiResponse(0, Response::HTTP_NOT_FOUND);
         }
 
-        return response($account->balance);
+        return apiResponse($account->balance);
     }
 }
