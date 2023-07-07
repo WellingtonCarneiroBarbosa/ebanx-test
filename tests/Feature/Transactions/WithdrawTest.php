@@ -43,9 +43,10 @@ class WithdrawTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('transactions', [
-            'origin_internal_account_id' => $account->id,
-            'amount'                     => 100,
-            'type'                       => Transaction::TYPES['withdraw'],
+            'origin_internal_account_id'      => $account->id,
+            'destination_internal_account_id' => null,
+            'amount'                          => 100,
+            'type'                            => Transaction::TYPES['withdraw'],
         ]);
 
         $this->assertDatabaseCount('transactions', 1);
@@ -73,7 +74,6 @@ class WithdrawTest extends TestCase
         Event::assertDispatched(NewWithdraw::class, function (NewWithdraw $event) {
             return $event->transaction instanceof Transaction
                 && $event->transaction->amount === 100
-                && $event->transaction->origin_internal_account_id === $event->transaction->origin_internal_account_id
                 && $event->transaction->type === Transaction::TYPES['withdraw'];
         });
     }
