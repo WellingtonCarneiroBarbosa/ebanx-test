@@ -22,6 +22,8 @@ class IndexController extends Controller
             return apiResponse(0, Response::HTTP_NOT_FOUND);
         }
 
-        return apiResponse($account->balance);
+        return apiResponse(
+            moneyNormalizer($account->balance)
+        );
     }
 }

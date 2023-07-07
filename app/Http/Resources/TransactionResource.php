@@ -25,14 +25,14 @@ class TransactionResource extends JsonResource
         if ($transaction->origin_internal_account_id !== null) {
             $response['origin'] = [
                 'id'      => $transaction->origin_internal_account_id,
-                'balance' => $transaction->originInternalAccount->balance,
+                'balance' => moneyNormalizer($transaction->originInternalAccount->balance),
             ];
         }
 
         if ($transaction->destination_internal_account_id !== null) {
             $response['destination'] = [
                 'id'      => $transaction->destination_internal_account_id,
-                'balance' => $transaction->destinationInternalAccount->balance,
+                'balance' => moneyNormalizer($transaction->destinationInternalAccount->balance),
             ];
         }
 
