@@ -13,7 +13,7 @@ class IndexController extends Controller
     public function __invoke(Request $request)
     {
         $data = $request->validate([
-            'account_id' => ['required', 'string'],
+            'account_id' => ['required', 'integer'],
         ]);
 
         try {
