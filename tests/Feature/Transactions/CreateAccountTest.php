@@ -54,7 +54,6 @@ class CreateAccountTest extends TestCase
         $response = $this->post(route('transaction'), $data);
         $response = $this->post(route('transaction'), $data);
 
-        // 201 because it is a deposit
         $response->assertStatus(201);
 
         $this->assertDatabaseCount('accounts', 1);
