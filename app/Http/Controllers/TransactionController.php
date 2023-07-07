@@ -61,8 +61,6 @@ class TransactionController extends Controller
     {
         $data = $this->data;
 
-        $destinationAccount = $this->findOrCreateAccount($data['destination']);
-
         try {
             $originAccount = Account::findOrFail($data['origin']);
         } catch (ModelNotFoundException) {
@@ -71,7 +69,7 @@ class TransactionController extends Controller
 
         return $this->handleTransferRequest(
             $originAccount,
-            $destinationAccount,
+            destinationAccount: $this->findOrCreateAccount($data['destination']),
         );
     }
 
