@@ -1,5 +1,7 @@
 # Ebanx Test API
-> An API to the ebanx software engineer test
+> Below, the Wakatime report with detailed time spent on each part of the API.
+
+<img src="/storage/app/others/wakatime-report.png" />
 
 ## Installation
 
