@@ -3,10 +3,13 @@
 namespace Tests\Feature\Balance;
 
 use App\Models\Account;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class GetBalanceTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
     public function it_should_return_the_correct_account_balance(): void
     {

@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property MonetaryCast $balance
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Transaction> $transactions
+ * @property-read int|null $transactions_count
  * @method static \Database\Factories\AccountFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Account newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Account newQuery()
@@ -35,4 +37,9 @@ class Account extends Model
         'id'      => 'string',
         'balance' => MonetaryCast::class,
     ];
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'destination_internal_account_id');
+    }
 }
