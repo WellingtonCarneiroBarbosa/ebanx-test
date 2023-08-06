@@ -2,26 +2,21 @@
 
 namespace App\Actions\Account;
 
+use App\Actions\Account\Concerns\DecreasesAccountBalance;
 use App\Events\Account\TransferReceived;
 use App\Events\Account\TransferSended;
+use App\Exceptions\Accounts\InsufficientFunds;
 use App\Models\Account;
 use App\Models\Transaction;
 use DB;
 
 class Transfer
 {
+    use DecreasesAccountBalance;
+
     protected Account $originAccount;
 
     protected Account $destinationAccount;
-
-    protected int $amount;
-
-    public function setOriginAccount(Account $originAccount): self
-    {
-        $this->originAccount = $originAccount;
-
-        return $this;
-    }
 
     public function setDestinationAccount(Account $destinationAccount): self
     {
@@ -30,17 +25,12 @@ class Transfer
         return $this;
     }
 
-    public function setAmount(int $amount): self
-    {
-        $this->amount = $amount;
-
-        return $this;
-    }
-
     public function execute(): Transaction
     {
         try {
             DB::beginTransaction();
+
+            throw_if(!$this->canDecreaseBalance(), new InsufficientFunds($this->originAccount));
 
             $this->originAccount
                 ->decreaseBalance($this->amount)

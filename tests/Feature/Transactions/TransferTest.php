@@ -4,6 +4,7 @@ namespace Tests\Feature\Transactions;
 
 use App\Events\Account\TransferReceived;
 use App\Events\Account\TransferSended;
+use App\Exceptions\Accounts\InsufficientFunds;
 use App\Models\Account;
 use App\Models\Transaction;
 use Event;
@@ -196,5 +197,32 @@ class TransferTest extends TestCase
             'id'      => 9998,
             'balance' => 100,
         ]);
+    }
+
+    /** @test */
+    public function it_should_throw_an_exception_if_origin_account_does_not_have_minimum_funds_to_make_the_transfer(): void
+    {
+        $this->withoutExceptionHandling();
+
+        $originAccount = Account::factory()->create([
+            'balance' => 1000,
+        ]);
+
+        $destinationAccount = Account::factory()->create([
+            'balance' => 0,
+        ]);
+
+        $data = [
+            'type'        => Transaction::TYPES['transfer'],
+            'origin'      => $originAccount->id,
+            'destination' => $destinationAccount->id,
+            'amount'      => 1101,
+        ];
+
+        $this->expectException(InsufficientFunds::class);
+
+        $response = $this->post(route('transaction'), $data);
+
+        $response->assertStatus(500);
     }
 }
